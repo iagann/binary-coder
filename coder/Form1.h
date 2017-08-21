@@ -39,9 +39,6 @@ namespace coder {
 	private: System::ComponentModel::IContainer^  components;
 
 	private: bool openedCoded;
-	private: System::Windows::Forms::Timer^  antiBruteForce;
-			 int counter;
-			 static const int delay = 5 * 1000;
 			 int len;
 			 int progress;
 
@@ -63,7 +60,6 @@ namespace coder {
 			this->decodeButton = (gcnew System::Windows::Forms::Button());
 			this->codeButton = (gcnew System::Windows::Forms::Button());
 			this->Dialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
-			this->antiBruteForce = (gcnew System::Windows::Forms::Timer(this->components));
 			this->SuspendLayout();
 			// 
 			// originalFile
@@ -157,35 +153,27 @@ namespace coder {
 			// 
 			// decodeButton
 			// 
-			this->decodeButton->Enabled = false;
 			this->decodeButton->Location = System::Drawing::Point(311, 90);
 			this->decodeButton->Name = L"decodeButton";
 			this->decodeButton->Size = System::Drawing::Size(75, 23);
 			this->decodeButton->TabIndex = 11;
-			this->decodeButton->Text = L"wait 5 s";
+			this->decodeButton->Text = L"decode";
 			this->decodeButton->UseVisualStyleBackColor = true;
 			this->decodeButton->Click += gcnew System::EventHandler(this, &Form1::decodeButton_Click);
 			// 
 			// codeButton
 			// 
-			this->codeButton->Enabled = false;
 			this->codeButton->Location = System::Drawing::Point(311, 64);
 			this->codeButton->Name = L"codeButton";
 			this->codeButton->Size = System::Drawing::Size(75, 23);
 			this->codeButton->TabIndex = 10;
-			this->codeButton->Text = L"wait 5 s";
+			this->codeButton->Text = L"code";
 			this->codeButton->UseVisualStyleBackColor = true;
 			this->codeButton->Click += gcnew System::EventHandler(this, &Form1::codeButton_Click);
 			// 
 			// Dialog1
 			// 
 			this->Dialog1->FileName = L"openFileDialog1";
-			// 
-			// antiBruteForce
-			// 
-			this->antiBruteForce->Enabled = true;
-			this->antiBruteForce->Interval = 1000;
-			this->antiBruteForce->Tick += gcnew System::EventHandler(this, &Form1::antiBruteForce_Tick);
 			// 
 			// Form1
 			// 
@@ -205,7 +193,7 @@ namespace coder {
 			this->Controls->Add(this->codedFile);
 			this->Controls->Add(this->originalFile);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
-			this->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"$this.Icon")));
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->MaximizeBox = false;
 			this->Name = L"Form1";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
@@ -216,21 +204,6 @@ namespace coder {
 		}
 #pragma endregion
 private: String^ caption(){return gcnew String("Binary coder");}
-
-private: System::Void antiBruteForce_Tick(System::Object^  sender, System::EventArgs^  e) 
-		 {
-			 counter+=antiBruteForce->Interval;
-			 codeButton->Text = "wait " + Convert::ToString((delay-counter)/1000.0) + " s";
-			 decodeButton->Text = codeButton->Text;
-			 if (counter >= delay) 
-			 {
-				 codeButton->Text = "code";
-				 decodeButton->Text = "decode";
-				 antiBruteForce->Enabled=false;
-				 codeButton->Enabled=!antiBruteForce->Enabled && originalFile->Text!="";
-				 decodeButton->Enabled=!antiBruteForce->Enabled  && codedFile->Text!="";
-			 }
-		 }
 
 private: void loadPaths()
 		 {
@@ -251,8 +224,8 @@ private: void loadPaths()
 						 codedFile->Text = coded;
 				 }
 				 reloadButton->Enabled=true;
-				 codeButton->Enabled=!antiBruteForce->Enabled && originalFile->Text!="";
-				 decodeButton->Enabled=!antiBruteForce->Enabled  && codedFile->Text!="";
+				 codeButton->Enabled=originalFile->Text!="";
+				 decodeButton->Enabled=codedFile->Text!="";
 			 }
 		 }
 
@@ -288,8 +261,6 @@ private: int code(bool coded)
 				 MessageBoxButtons::OK, MessageBoxIcon::Error, MessageBoxDefaultButton::Button1);
 				 return -2;
 			 }
-			 antiBruteForce->Enabled=true;
-			 counter = 0;
 			 codeButton->Enabled=false;
 			 decodeButton->Enabled=false;
 			 String^ _what = coded ? codedFile->Text : originalFile->Text;

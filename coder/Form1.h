@@ -45,7 +45,6 @@ namespace coder {
 #pragma region Windows Form Designer generated code
 		void InitializeComponent(void)
 		{
-			this->components = (gcnew System::ComponentModel::Container());
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
 			this->originalFile = (gcnew System::Windows::Forms::TextBox());
 			this->codedFile = (gcnew System::Windows::Forms::TextBox());
@@ -153,6 +152,7 @@ namespace coder {
 			// 
 			// decodeButton
 			// 
+			this->decodeButton->Enabled = false;
 			this->decodeButton->Location = System::Drawing::Point(311, 90);
 			this->decodeButton->Name = L"decodeButton";
 			this->decodeButton->Size = System::Drawing::Size(75, 23);
@@ -163,6 +163,7 @@ namespace coder {
 			// 
 			// codeButton
 			// 
+			this->codeButton->Enabled = false;
 			this->codeButton->Location = System::Drawing::Point(311, 64);
 			this->codeButton->Name = L"codeButton";
 			this->codeButton->Size = System::Drawing::Size(75, 23);

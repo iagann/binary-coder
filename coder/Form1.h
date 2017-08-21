@@ -7,30 +7,15 @@ namespace coder {
 	using namespace System::Windows::Forms;
 	using namespace System::IO;
 
-	/// <summary>
-	/// Summary for Form1
-	///
-	/// WARNING: If you change the name of this class, you will need to change the
-	///          'Resource File Name' property for the managed resource compiler tool
-	///          associated with all .resx files this class depends on.  Otherwise,
-	///          the designers will not be able to interact properly with localized
-	///          resources associated with this form.
-	/// </summary>
 	public ref class Form1 : public System::Windows::Forms::Form
 	{
 	public:
 		Form1(void)
 		{
 			InitializeComponent();
-			//
-			//TODO: Add the constructor code here
-			//
 		}
 
 	protected:
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
 		~Form1()
 		{
 			if (components)
@@ -51,15 +36,9 @@ namespace coder {
 	private: System::Windows::Forms::Button^  decodeButton;
 	private: System::Windows::Forms::Button^  codeButton;
 	private: System::Windows::Forms::OpenFileDialog^  Dialog1;
-
 	private: System::ComponentModel::IContainer^  components;
 
-	private:
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-
-	bool openedCoded;
+	private: bool openedCoded;
 	private: System::Windows::Forms::Timer^  antiBruteForce;
 			 int counter;
 			 static const int delay = 5 * 1000;
@@ -67,10 +46,6 @@ namespace coder {
 			 int progress;
 
 #pragma region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());
@@ -241,6 +216,7 @@ namespace coder {
 		}
 #pragma endregion
 private: String^ caption(){return gcnew String("Binary coder");}
+
 private: System::Void antiBruteForce_Tick(System::Object^  sender, System::EventArgs^  e) 
 		 {
 			 counter+=antiBruteForce->Interval;
@@ -255,6 +231,7 @@ private: System::Void antiBruteForce_Tick(System::Object^  sender, System::Event
 				 decodeButton->Enabled=!antiBruteForce->Enabled  && codedFile->Text!="";
 			 }
 		 }
+
 private: void loadPaths()
 		 {
 			 if (IO::File::Exists(Dialog1->FileName))
@@ -278,6 +255,7 @@ private: void loadPaths()
 				 decodeButton->Enabled=!antiBruteForce->Enabled  && codedFile->Text!="";
 			 }
 		 }
+
 private: void openButton_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
 			 // инициализация переменных
@@ -291,9 +269,13 @@ private: void openButton_Click(System::Object^  sender, System::EventArgs^  e)
 			 Dialog1->ShowDialog();
 			 loadPaths();
 		 }
+
 private: System::Void reloadButton_Click(System::Object^  sender, System::EventArgs^  e) { loadPaths(); }
+
 private: System::Void codeButton_Click(System::Object^  sender, System::EventArgs^  e) { code(false); }
+
 private: System::Void decodeButton_Click(System::Object^  sender, System::EventArgs^  e) { code(true); }
+
 private: int code(bool coded)
 		 {
 			 if (password->Text->Length==0)
@@ -315,37 +297,41 @@ private: int code(bool coded)
 			 FileStream^ in = File::Open(_what, FileMode::Open);
 			 FileStream^ out = File::Open(_where, FileMode::Create);
 			 array<Byte>^ data = gcnew array<Byte>(in->Length);
-			 String^ s1 = Convert::ToString(password->Text->Length);
-			 String^ s2 = Convert::ToString(in->Length);
+			 // формирование ключа шифрования
+			 String^ s1 = Convert::ToString(password->Text->Length); // числовое выражение длины введённого ключа
+			 String^ s2 = Convert::ToString(in->Length); // числовое выражение размера файла
 			 array<Byte>^ pass = gcnew array<Byte>(password->Text->Length + s1->Length + s2->Length);
 			 for (int i=0; i<pass->Length; i++)
-				 if (i<password->Text->Length) pass[i]=password->Text[i];
-				 else if (i<password->Text->Length+s1->Length) pass[i]=s1[i - password->Text->Length];
-				 else pass[i]=s2[i - password->Text->Length - s1->Length];
+				 if (i<password->Text->Length) pass[i]=password->Text[i]; // введённый пользователем ключ
+				 else if (i<password->Text->Length+s1->Length) pass[i]=s1[i - password->Text->Length]; // s1
+				 else pass[i]=s2[i - password->Text->Length - s1->Length]; // s2
 			 in->Read(data,0,data->Length);
 			 progress=0;
 			 len=pass->Length-1;
-			 code(data,pass);
+			 code(data,pass); // шифрование массива data ключом pass
 			 out->Write(data,0,data->Length);
 			 in->Close();
 			 out->Close();
 			 loadPaths();
 		 }
-private: array<Byte>^ code(array<Byte>^ a, array<Byte>^ b)
+
+private: array<Byte>^ code(array<Byte>^ a, array<Byte>^ b) // алгоритм шифрования рекурсивный
 		 {
 			 this->Text = caption() + ": progress - " + Convert::ToString(100*(progress++)/len) + "%";
-			 if (b->Length == 1) return a;
+			 if (b->Length == 1) return a; // выход из рекурсии
+
+			 // циклическое применение xor
 			 for (int i=0; i<a->Length; i++)
-				 a[i]=a[i]^b[i%b->Length];
+				 a[i]=a[i]^b[i%b->Length]; 
+
+			 // формируем новый ключ c меньшей длиной
 			 array<Byte>^ c = gcnew array<Byte>(b->Length - 1);
 			 for (int i=0; i<c->Length; i++)
 				 c[i]=b[i]^b[i+1];
 			 return code(a,c);
 		 }
-private: Byte d(Byte a, Byte b) { return a^b; }
+
 private: System::Void Form1_Load(System::Object^  sender, System::EventArgs^  e) { 
-			 this->Text=caption(); 
-			 0x0BED+0xCAFE==0xEDA*0x00000DA;
-			 0xDACFACE/0xBABE==0xBEDA*0xBCE7DA;
+			 this->Text = caption(); 
 		 }
 };}
